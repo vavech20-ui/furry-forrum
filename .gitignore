@@ -1,0 +1,41 @@
+# Виртуальное окружение
+venv/
+env/
+ENV/
+
+# Файлы Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+
+# База данных
+db.sqlite3
+*.db
+
+# Статические и медиа файлы
+/staticfiles/
+/media/
+*.log
+
+# Настройки VS Code
+.vscode/
+*.code-workspace
+
+# Файлы IDE
+.idea/
+*.swp
+*.swo
+
+# Файлы окружения
+.env
+*.env
+
+# Файлы Django при создании нового проекта
+/migrations/
+!*/migrations/__init__.py
+
+# Файлы тестов
+.coverage
+htmlcov/
+.tox/
