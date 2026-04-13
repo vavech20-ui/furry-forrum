@@ -16,6 +16,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     'rest_framework',
     'rest_framework_simplejwt',
@@ -92,7 +93,13 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+SITE_ID = 1
+
 DJOSER = {
     'LOGIN_FIELD': 'email',       
     'USER_CREATE_PASSWORD_RETYPE': True,  
+    'SEND_ACTIVATION_EMAIL': True,
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}', #шаблон ссылки для сброса пароля
+    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}', #шаблон ссылки для смены имени 
+    'ACTIVATION_URL': '#/activate/{uid}/{token}', #шаблон ссылки для активации аккаунта
 }
