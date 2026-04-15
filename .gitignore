@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Виртуальное окружение
 venv/
 env/
@@ -43,7 +42,7 @@ htmlcov/
 
 +++ .gitignore (修改后)
 ```
-# Python
+# Python (backend)
 __pycache__/
 *.pyc
 *.pyo
@@ -68,7 +67,7 @@ coverage.xml
 .pytest_cache/
 .mypy_cache/
 
-# Django
+# Django (backend)
 *.mo
 *.pot
 .DS_Store
@@ -78,26 +77,25 @@ media/
 staticfiles/
 local_settings.py
 
-# Migration files are already tracked in your repo, but local migration files should be ignored
+# Файлы миграций уже отслеживаются в репозитории, но локальные миграции нужно игнорировать
 forum/boards/migrations/*.py
 
-# IDE
+# IDE (backend)
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
+# Системные файлы ОС
 .DS_Store
 Thumbs.db
 
-# Environment
+# Переменные окружения (backend)
 .env
 .env.local
 *.env
 ```
-=======
-# Logs
+# Логи (backend)
 logs
 *.log
 npm-debug.log*
@@ -111,7 +109,7 @@ dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# Директории и файлы редактора
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -121,4 +119,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
->>>>>>> bc65acfcdb481515a8b018d23f174abf9c0f4103

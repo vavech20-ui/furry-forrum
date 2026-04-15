@@ -5,8 +5,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/boards/', include('boards.urls')),
-    path('api/users/', include('users.urls')),
+    path('boards/', include('boards.urls')),
+    path('users/', include('users.urls')),
     re_path(r'^auth/', include('djoser.urls')),
     re_path(r'^auth/', include('djoser.urls.jwt')),
     path('api-auth/', include('rest_framework.urls')),

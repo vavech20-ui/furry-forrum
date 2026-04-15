@@ -3,7 +3,7 @@ from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-sl^&_k%5esuis&&@%gu-z(i))g$pyc7u6*^7@mnni4aai6f9cb'
+SECRET_KEY = 'your-secret-key-here'
 
 DEBUG = True
 
@@ -16,15 +16,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+
     'rest_framework',
     'rest_framework_simplejwt',
     'djoser',
+
     'boards.apps.BoardsConfig',
     'users',
     'core',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -32,11 +37,15 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+]
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',  # адрес фронта (Vite)
 ]
 
-ROOT_URLCONF = 'forum.urls'
-WSGI_APPLICATION = 'forum.wsgi.application'
 
+ROOT_URLCONF = 'forum.urls'
+WSGI_APPLICATION = 'forum.wsgi.application' 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -89,12 +98,17 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+SITE_ID = 1
 
 DJOSER = {
-    'LOGIN_FIELD': 'username',
-    'USER_CREATE_PASSWORD_RETYPE': True,
+    'LOGIN_FIELD': 'username',       
+    'USER_CREATE_PASSWORD_RETYPE': True,  
+    'SEND_ACTIVATION_EMAIL': True,
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}', #шаблон ссылки для сброса пароля
+    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}', #шаблон ссылки для смены имени 
+    'ACTIVATION_URL': '/activate/{uid}/{token}', #шаблон ссылки для активации аккаунта
+    
 }
 
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+SITE_ID=1
