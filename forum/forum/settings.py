@@ -110,5 +110,3 @@ DJOSER = {
     'ACTIVATION_URL': '/activate/{uid}/{token}', #шаблон ссылки для активации аккаунта
     
 }
-
-SITE_ID=1
