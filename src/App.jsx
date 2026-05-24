@@ -18,7 +18,6 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          {/* Активация по почте отключена — заглушка на случай старых ссылок */}
           <Route path="/activate/:uid/:token" element={<ActivateAccount />} />
           <Route
             path="/create-board"

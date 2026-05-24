@@ -32,7 +32,8 @@ const RegisterForm = () => {
       await register(formData);
       navigate('/login', {
         state: {
-          message: 'Регистрация успешна. Можно сразу войти.',
+          message:
+            'Регистрация успешна. Проверьте почту и перейдите по ссылке для активации аккаунта.',
         },
       });
     } catch (err) {

@@ -17,10 +17,9 @@ export async function register({ username, email, password, re_password }) {
   return data;
 }
 
-// Активация по почте отключена на бэкенде (SEND_ACTIVATION_EMAIL = False)
-// export async function activateAccount(uid, token) {
-//   await api.post('/auth/users/activation/', { uid, token });
-// }
+export async function activateAccount(uid, token) {
+  await api.post('/auth/users/activation/', { uid, token });
+}
 
 export async function fetchCurrentUser() {
   const { data } = await api.get('/auth/users/me/');

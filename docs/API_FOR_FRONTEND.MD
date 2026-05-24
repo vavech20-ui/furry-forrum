@@ -32,7 +32,7 @@ Access — **60 минут**, refresh — **7 дней** (`SIMPLE_JWT` в `setti
 | Назначение | Путь | Auth |
 | ---------- | ---- | ---- |
 | Регистрация | `POST /auth/users/` | Нет. Тело: `username`, `email`, `password`, `re_password`. |
-| Активация | `POST /auth/users/activation/` | Нет. **Сейчас не используется** (`SEND_ACTIVATION_EMAIL = False`). |
+| Активация | `POST /auth/users/activation/` | Нет. Тело: `{ "uid", "token" }` из ссылки в письме. |
 | Логин (JWT) | `POST /auth/jwt/create/` | Нет. Тело: `username`, `password`. |
 | Refresh | `POST /auth/jwt/refresh/` | Тело: `{ "refresh": "..." }`. |
 | Verify | `POST /auth/jwt/verify/` | Тело: `{ "token": "..." }`. |
@@ -136,7 +136,7 @@ URL в JSON часто относительные (`/media/...`). Фронт с�
 | `/` | Список тредов, фильтр досок | `GET /boards/`, `GET /boards/threads/` |
 | `/login` | Вход | `POST /auth/jwt/create/` |
 | `/register` | Регистрация | `POST /auth/users/` |
-| `/activate/:uid/:token` | Заглушка | активация отключена |
+| `/activate/:uid/:token` | Активация | `POST /auth/users/activation/` при открытии страницы |
 | `/create-board` | Создать доску (админ) | `POST /boards/` |
 | `/create-thread` | Создать тред | `POST /boards/threads/` |
 | `/threads/:id` | Тред + посты | `GET` тред; посты с JWT |

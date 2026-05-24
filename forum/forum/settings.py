@@ -1,13 +1,21 @@
 ﻿from pathlib import Path
 from datetime import timedelta
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'your-secret-key-here'
+try:
+    from dotenv import load_dotenv
 
-DEBUG = True
+    load_dotenv(BASE_DIR.parent / '.env')
+except ImportError:
+    pass
+SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key-here')
 
-ALLOWED_HOSTS = []
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
+
+_hosts = os.environ.get('ALLOWED_HOSTS', '')
+ALLOWED_HOSTS = [h.strip() for h in _hosts.split(',') if h.strip()] if _hosts else []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -100,9 +108,20 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
-# Заглушка для dev: письма не отправляем, активация не требуется
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+FRONTEND_DOMAIN = os.environ.get('FRONTEND_DOMAIN', 'localhost:5173')
+
+if os.environ.get('EMAIL_PASSWORD'):
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.mail.ru')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '465'))
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'furry_forum@mail.ru')
+    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'false').lower() == 'true'
+    EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'true').lower() == 'true'
+    EMAIL_HOST_PASSWORD = os.environ['EMAIL_PASSWORD']
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 SITE_ID = 1
 
 DJOSER = {
@@ -112,9 +131,11 @@ DJOSER = {
         'user': 'users.serializers.CustomUserSerializer',
         'current_user': 'users.serializers.CustomUserSerializer',
     },
-    # Активация по почте отключена — пользователь сразу is_active=True
-    'SEND_ACTIVATION_EMAIL': False,
-    # 'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
-    # 'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
-    # 'ACTIVATION_URL': 'activate/{uid}/{token}',
+    'SEND_ACTIVATION_EMAIL': True,
+    'EMAIL_FRONTEND_DOMAIN': FRONTEND_DOMAIN,
+    'EMAIL_FRONTEND_PROTOCOL': 'http',
+    'SITE_NAME': 'Furry Forum',
+    'ACTIVATION_URL': 'activate/{uid}/{token}',
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
 }

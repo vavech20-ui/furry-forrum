@@ -15,7 +15,7 @@
 - **Сериализаторы:** `BoardSerializer`, `ThreadSerializer`, `PostSerializer`.
 - **Аутентификация:** Djoser + JWT (`/auth/`, `rest_framework_simplejwt`).
 - **Профиль пользователя:** `CustomUserSerializer` — в ответе `/auth/users/me/` есть `is_staff`, `is_superuser` (для админ-UI на фронте).
-- **Регистрация:** `SEND_ACTIVATION_EMAIL = False` — аккаунт сразу активен, письма не отправляются (dev-заглушка).
+- **Регистрация:** `SEND_ACTIVATION_EMAIL = True` — после регистрации на почту приходит ссылка `/activate/:uid/:token`. Без `EMAIL_PASSWORD` в `.env` письма выводятся в консоль Django.
 - **CORS:** origin `http://localhost:5173`.
 - **Медиа:** `MEDIA_URL`, `MEDIA_ROOT`; в `DEBUG` раздача через `forum/urls.py`.
 - **Админка Django:** `/admin/` подключён (модели `boards` в `admin.py` не зарегистрированы).
@@ -30,7 +30,7 @@
   - `/threads/:id` — тред, посты, удаление треда (админ);
   - `/create-thread` — создание треда (multipart, обязательно `img`);
   - `/create-board` — создание доски (только админ);
-  - `/activate/:uid/:token` — заглушка (активация отключена на бэкенде).
+  - `/activate/:uid/:token` — активация аккаунта по ссылке из письма.
 - **Посты в треде:** `CommentSection` — `GET`/`POST`/`DELETE` через API (нужен вход).
 - **UI:** общие стили `src/styles/global.css`, шапка с навигацией.
 
