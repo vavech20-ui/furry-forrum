@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { isAdmin, useAuth } from '../context/AuthContext';
 
 const Header = () => {
   const { user, logout, loading } = useAuth();
@@ -20,6 +20,7 @@ const Header = () => {
             !loading && (
               <>
                 <span className="user-greeting">Привет, {user.username}</span>
+                {isAdmin(user) && <Link to="/create-board">Создать доску</Link>}
                 <Link to="/create-thread">Создать тред</Link>
                 <button type="button" onClick={logout}>
                   Выйти

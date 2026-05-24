@@ -100,15 +100,21 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Заглушка для dev: письма не отправляем, активация не требуется
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 SITE_ID = 1
 
 DJOSER = {
-    'LOGIN_FIELD': 'username',       
-    'USER_CREATE_PASSWORD_RETYPE': True,  
-    'SEND_ACTIVATION_EMAIL': True,
-    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}', #шаблон ссылки для сброса пароля
-    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}', #шаблон ссылки для смены имени 
-    'ACTIVATION_URL': 'activate/{uid}/{token}', #шаблон ссылки для активации (фронт: /activate/:uid/:token)
-    
+    'LOGIN_FIELD': 'username',
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'SERIALIZERS': {
+        'user': 'users.serializers.CustomUserSerializer',
+        'current_user': 'users.serializers.CustomUserSerializer',
+    },
+    # Активация по почте отключена — пользователь сразу is_active=True
+    'SEND_ACTIVATION_EMAIL': False,
+    # 'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    # 'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
+    # 'ACTIVATION_URL': 'activate/{uid}/{token}',
 }

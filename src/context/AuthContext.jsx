@@ -13,6 +13,10 @@ export const useAuth = () => {
   return ctx;
 };
 
+export function isAdmin(user) {
+  return Boolean(user?.is_staff || user?.is_superuser);
+}
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -54,6 +58,7 @@ export const AuthProvider = ({ children }) => {
         user,
         loading,
         isAuthenticated: !!user,
+        isAdmin: isAdmin(user),
         login,
         logout,
         refreshUser: loadUser,

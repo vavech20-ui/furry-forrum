@@ -120,6 +120,13 @@ a:hover {
   font-size: 0.75rem;
 }
 
+.hint {
+  color: #5c6773;
+  font-size: 0.9rem;
+  margin-top: -8px;
+  margin-bottom: 16px;
+}
+
 .board-filter {
   margin-bottom: 16px;
 }
@@ -223,6 +230,25 @@ a:hover {
 
 .btn-link.danger {
   color: #c92a2a;
+}
+
+.thread-actions {
+  margin: 16px 0;
+}
+
+.btn-danger {
+  padding: 8px 14px;
+  background: #c92a2a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .post-form textarea {

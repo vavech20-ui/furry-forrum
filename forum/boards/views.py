@@ -26,6 +26,8 @@ class ThreadViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ("list", "retrieve"):
             return [AllowAny()]
+        if self.action == "destroy":
+            return [IsAdminUser()]
         return [IsAuthenticated()]
 
     def perform_create(self, serializer):

@@ -14,8 +14,7 @@ class Board(models.Model):
 class Thread(models.Model):
     board = models.ForeignKey(
         Board,
-        on_delete=models.SET_DEFAULT,
-        default=1,
+        on_delete=models.PROTECT,
         related_name='threads'
     )
     name = models.CharField(max_length=100)

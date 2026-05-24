@@ -32,8 +32,7 @@ const RegisterForm = () => {
       await register(formData);
       navigate('/login', {
         state: {
-          message:
-            'Регистрация успешна. Проверьте почту или консоль Django для ссылки активации, затем войдите.',
+          message: 'Регистрация успешна. Можно сразу войти.',
         },
       });
     } catch (err) {

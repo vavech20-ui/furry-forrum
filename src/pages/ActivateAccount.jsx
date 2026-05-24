@@ -1,41 +1,23 @@
-import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { activateAccount } from '../api/auth';
-import { getErrorMessage } from '../api/client';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 
-const ActivateAccount = () => {
-  const { uid, token } = useParams();
-  const [status, setStatus] = useState('loading');
-  const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    const run = async () => {
-      try {
-        await activateAccount(uid, token);
-        setStatus('success');
-        setMessage('Аккаунт активирован. Теперь можно войти.');
-      } catch (err) {
-        setStatus('error');
-        setMessage(getErrorMessage(err, 'Не удалось активировать аккаунт'));
-      }
-    };
-    run();
-  }, [uid, token]);
-
-  return (
-    <div>
-      <Header />
-      <div className="container">
-        <h2>Активация аккаунта</h2>
-        {status === 'loading' && <p>Активация...</p>}
-        {status !== 'loading' && <p className={status === 'error' ? 'error' : 'success'}>{message}</p>}
-        <p>
-          <Link to="/login">Перейти ко входу</Link>
-        </p>
-      </div>
+/**
+ * Заглушка: активация по почте отключена (DJOSER SEND_ACTIVATION_EMAIL = False).
+ * Старые ссылки из писем сюда ведут, но отдельный шаг не нужен.
+ */
+const ActivateAccount = () => (
+  <div>
+    <Header />
+    <div className="container">
+      <h2>Активация аккаунта</h2>
+      <p className="success">
+        Активация по почте сейчас не используется. После регистрации можно сразу войти.
+      </p>
+      <p>
+        <Link to="/login">Перейти ко входу</Link>
+      </p>
     </div>
-  );
-};
+  </div>
+);
 
 export default ActivateAccount;

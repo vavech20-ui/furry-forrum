@@ -9,6 +9,11 @@ export async function fetchBoards() {
   return asList(data);
 }
 
+export async function createBoard({ slug, name, description }) {
+  const { data } = await api.post('/boards/', { slug, name, description });
+  return data;
+}
+
 export async function fetchThreads() {
   const { data } = await api.get('/boards/threads/');
   return asList(data);
@@ -24,6 +29,10 @@ export async function createThread(formData) {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
   return data;
+}
+
+export async function deleteThread(id) {
+  await api.delete(`/boards/threads/${id}/`);
 }
 
 export async function fetchPosts() {

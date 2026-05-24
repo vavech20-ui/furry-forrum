@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import CommentSection from '../components/CommentSection';
-import { fetchThread } from '../api/boards';
+import { deleteThread, fetchThread } from '../api/boards';
 import { getErrorMessage } from '../api/client';
 import { mediaUrl } from '../utils/mediaUrl';
+import { isAdmin, useAuth } from '../context/AuthContext';
 
 const ThreadDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [thread, setThread] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -27,6 +31,20 @@ const ThreadDetail = () => {
     };
     load();
   }, [id]);
+
+  const handleDelete = async () => {
+    if (!window.confirm('Удалить этот тред и все посты в нём?')) return;
+    setDeleting(true);
+    setError('');
+    try {
+      await deleteThread(id);
+      navigate('/', { state: { message: 'Тред удалён' } });
+    } catch (err) {
+      setError(getErrorMessage(err, 'Не удалось удалить тред'));
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   return (
     <div>
@@ -55,6 +73,18 @@ const ThreadDetail = () => {
                 <span>{new Date(thread.created_at).toLocaleString('ru-RU')}</span>
               )}
             </div>
+            {isAdmin(user) && (
+              <div className="thread-actions">
+                <button
+                  type="button"
+                  className="btn-danger"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                >
+                  {deleting ? 'Удаление...' : 'Удалить тред'}
+                </button>
+              </div>
+            )}
             <CommentSection threadId={thread.id} />
           </article>
         )}
