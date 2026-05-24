@@ -13,5 +13,5 @@ npm run dev
 
 - `docs/BACKEND_ROADMAP_OPTIONS.md` — roadmap по бэкенду, варианты и структура задач.
 - `docs/PROJECT_STATUS.md` — что уже сделано и что допиливать (актуальный срез по коду).
-- `docs/API_FOR_FRONTEND.MD` — описание HTTP API для фронта на этапе разработки (URL, JWT, доски/треды/посты).
+- `docs/API_FOR_FRONTEND.MD` — HTTP API и связка с React-фронтом (JWT, доски, треды, посты).
 

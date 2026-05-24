@@ -1,9 +1,11 @@
-# API для фронтенда (полное описание, этап разработки)
+# API для фронтенда (полное описание)
 
-Документ описывает **текущие** HTTP-маршруты бэкенда Django/DRF в `forum/` для работы с **локального** фронта (`http://localhost:5173`). Префиксы и поля при смене кода нужно обновить.
+Документ описывает **текущие** HTTP-маршруты бэкенда Django/DRF в `forum/` и то, как с ними работает фронт (`src/api/`).
 
 **Базовый URL API (dev):** `http://127.0.0.1:8000`  
-(или `http://localhost:8000` — то же самое, если так запущен `runserver`.)
+(или задай `VITE_API_URL` в `.env` — см. `.env.example`.)
+
+**Фронт (dev):** `http://localhost:5173`
 
 **CORS:** разрешён origin `http://localhost:5173` (`settings.CORS_ALLOWED_ORIGINS`).
 
@@ -11,161 +13,158 @@
 
 ## Заголовки
 
+| Заголовок | Когда |
+| --------- | ----- |
+| `Content-Type: application/json` | JSON-тело (без файлов). |
+| `Content-Type: multipart/form-data` | Загрузка `img` / `video` (FormData). |
+| `Authorization: Bearer <access>` | Эндпоинты с JWT (см. таблицы). |
 
-| Заголовок                           | Когда                                            |
-| ----------------------------------- | ------------------------------------------------ |
-| `Content-Type: application/json`    | JSON-тело (если без файлов).                     |
-| `Content-Type: multipart/form-data` | Загрузка `img` / `video` (FormData).             |
-| `Authorization: Bearer <access>`    | Эндпоинты, где требуется JWT (см. таблицы ниже). |
+Access — **60 минут**, refresh — **7 дней** (`SIMPLE_JWT` в `settings`).
 
-
-Тип токена и время жизни: `rest_framework_simplejwt` — access по умолчанию **60 минут**, refresh **7 дней** (см. `SIMPLE_JWT` в `settings`).
-
----
-
-## Итоговая карта URL (от корня сайта)
-
-Ниже путь = `базовый URL` + путь.
-
-### Служебное и админка
-
-
-| Метод    | Путь                     | Auth          | Примечание                                                        |
-| -------- | ------------------------ | ------------- | ----------------------------------------------------------------- |
-| *        | `/admin/`                | Сессия админа | Панель Django.                                                    |
-| GET/POST | `/api-auth/login/` и др. | —             | Браузерный логин DRF (browsable API), не основной способ для SPA. |
-
-
-### Пользователи и JWT (Djoser)
-
-Подключено: `path('auth/', include('djoser.urls'))` и `include('djoser.urls.jwt')`. Имена путей — **стандартные для Djoser** (при обновлении библиотеки сверяй с документацией Djoser).
-
-
-| Назначение                    | Типичный путь                   | Auth                                                                                           |
-| ----------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Регистрация пользователя      | `POST /auth/users/`             | Обычно без JWT (тело — поля пользователя; при `USER_CREATE_PASSWORD_RETYPE` нужны два пароля). |
-| Текущий пользователь          | `GET/PATCH/PUT /auth/users/me/` | JWT                                                                                            |
-| Конкретный пользователь по id | `GET /auth/users/<id>/` и т.д.  | По настройкам Djoser                                                                           |
-| **Выдача JWT (логин)**        | `POST /auth/jwt/create/`        | Без JWT; тело: `**username`** + `**password**` (`LOGIN_FIELD`: `username`).                    |
-| Обновление access             | `POST /auth/jwt/refresh/`       | Refresh-токен                                                                                  |
-| Проверка токена               | `POST /auth/jwt/verify/`        | —                                                                                              |
-
-
-В `DJOSER` включены письма активации/сброса и шаблоны ссылок; в dev письма уходят в **консоль** (`EMAIL_BACKEND`).
-
-### Приложение `users` (своих маршрутов нет)
-
-`path('users/', include('users.urls'))` — в `users/urls.py` сейчас **пустой** список `urlpatterns`, отдельных эндпоинтов под `/users/` **нет**.
+Клиент (`src/api/client.js`) подставляет `Authorization` из `localStorage.access` и при 401 пробует `POST /auth/jwt/refresh/`.
 
 ---
 
-## Доски, посты, треды (приложение `boards`)
+## Пользователи и JWT (Djoser)
 
-Префикс в корне проекта: `**/boards/`** (`path('boards/', include('boards.urls'))`).
+Префикс: `/auth/` (`djoser.urls` + `djoser.urls.jwt`).
 
-Порядок в `boards/urls.py`: сначала `**posts/**`, `**threads/**`, затем router досок — конфликтов имён нет.
+| Назначение | Путь | Auth |
+| ---------- | ---- | ---- |
+| Регистрация | `POST /auth/users/` | Нет. Тело: `username`, `email`, `password`, `re_password`. |
+| Активация | `POST /auth/users/activation/` | Нет. **Сейчас не используется** (`SEND_ACTIVATION_EMAIL = False`). |
+| Логин (JWT) | `POST /auth/jwt/create/` | Нет. Тело: `username`, `password`. |
+| Refresh | `POST /auth/jwt/refresh/` | Тело: `{ "refresh": "..." }`. |
+| Verify | `POST /auth/jwt/verify/` | Тело: `{ "token": "..." }`. |
+| Текущий пользователь | `GET` / `PATCH` / `PUT` `/auth/users/me/` | JWT |
+
+**Ответ `/auth/users/me/`** (через `CustomUserSerializer`): в т.ч. `id`, `username`, `email`, **`is_staff`**, **`is_superuser`** — фронт показывает админ-функции при `is_staff || is_superuser`.
+
+Регистрация **без письма активации**: пользователь сразу `is_active=True`.
+
+### Приложение `users`
+
+`path('users/', include('users.urls'))` — `urlpatterns` **пустой**, отдельных URL под `/users/` нет.
+
+---
+
+## Доски, посты, треды (`boards`)
+
+Префикс: `/boards/`.
+
+Порядок в `boards/urls.py`: `posts/`, `threads/`, затем router досок.
 
 ### Доски `Board`
 
-`BoardViewSet` + `DefaultRouter` с пустым префиксом → список и деталка на «корне» приложения.
+| Метод | Путь | Auth | Действие |
+| ----- | ---- | ---- | -------- |
+| GET | `/boards/` | Нет | Список |
+| GET | `/boards/<id>/` | Нет | Одна доска |
+| POST | `/boards/` | **Админ** | Создать |
+| PUT/PATCH | `/boards/<id>/` | **Админ** | Обновить |
+| DELETE | `/boards/<id>/` | **Админ** | Удалить (если нет тредов — `PROTECT`) |
 
+**Поля JSON:** `id`, `slug`, `name`, `description`
 
-| Метод     | Путь            | Auth                  | Действие      |
-| --------- | --------------- | --------------------- | ------------- |
-| GET       | `/boards/`      | Нет (`AllowAny`)      | Список досок  |
-| POST      | `/boards/`      | Админ (`IsAdminUser`) | Создать доску |
-| GET       | `/boards/<id>/` | Нет                   | Одна доска    |
-| PUT/PATCH | `/boards/<id>/` | Админ                 | Обновить      |
-| DELETE    | `/boards/<id>/` | Админ                 | Удалить       |
-
-
-**Поля в JSON (чтение/запись в пределах прав):**  
-`id`, `slug`, `name`, `description`
+**Фронт:** `GET` на главной (фильтр), `POST` — страница `/create-board` (только админ).
 
 ---
 
 ### Треды `Thread`
 
+| Метод | Путь | Auth | Действие |
+| ----- | ---- | ---- | -------- |
+| GET | `/boards/threads/` | Нет | Список |
+| GET | `/boards/threads/<id>/` | Нет | Один тред |
+| POST | `/boards/threads/` | **JWT** | Создать; `author` — сервер |
+| PUT/PATCH | `/boards/threads/<id>/` | **JWT** | Обновить |
+| DELETE | `/boards/threads/<id>/` | **Админ** | Удалить (+ посты каскадом) |
 
-| Метод     | Путь                    | Auth                        | Действие                                     |
-| --------- | ----------------------- | --------------------------- | -------------------------------------------- |
-| GET       | `/boards/threads/`      | Нет                         | Список тредов                                |
-| POST      | `/boards/threads/`      | **JWT** (`IsAuthenticated`) | Создать тред; `author` выставляется сервером |
-| GET       | `/boards/threads/<id>/` | Нет                         | Один тред                                    |
-| PUT/PATCH | `/boards/threads/<id>/` | **JWT**                     | Обновить                                     |
-| DELETE    | `/boards/threads/<id>/` | **JWT**                     | Удалить                                      |
+**Поля**
 
+| Поле | Запись | Примечание |
+| ---- | ------ | ---------- |
+| `id` | только ответ | |
+| `board` | да | id доски (обязательно) |
+| `name` | да | |
+| `title` | да | |
+| `img` | да | обязательно в модели; **multipart** |
+| `description` | да | можно пустым |
+| `created_at` | только ответ | |
+| `is_pinned` | только ответ | |
+| `author` | только ответ | id пользователя |
 
-**Поля сериализатора:**
-
-
-| Поле          | Запись с клиента | Примечание                                    |
-| ------------- | ---------------- | --------------------------------------------- |
-| `id`          | read-only        |                                               |
-| `board`       | да               | id доски                                      |
-| `name`        | да               |                                               |
-| `title`       | да               |                                               |
-| `img`         | да               | обязательное в модели; удобно **multipart**   |
-| `description` | да               | можно пустым                                  |
-| `created_at`  | нет              | только ответ                                  |
-| `is_pinned`   | нет              | только ответ; смена закрепа не через этот API |
-| `author`      | нет              | подставляется при создании                    |
-
+**Фронт:** список на `/`, создание `/create-thread`, просмотр `/threads/:id`, удаление треда на детальной (админ).
 
 ---
 
 ### Посты `Post`
 
-`PostViewSet` без своего `get_permissions` → действует **глобально** `DEFAULT_PERMISSION_CLASSES`: `**IsAuthenticated`** для **всех** действий (включая GET), если не анонимный пользователь не обходится иными настройками.
+Глобально `IsAuthenticated` для всех действий `PostViewSet`.
 
+| Метод | Путь | Auth | Действие |
+| ----- | ---- | ---- | -------- |
+| GET | `/boards/posts/` | **JWT** | Список всех постов |
+| GET | `/boards/posts/<id>/` | **JWT** | Один пост |
+| POST | `/boards/posts/` | **JWT** | Создать |
+| PUT/PATCH | `/boards/posts/<id>/` | **JWT** | Обновить |
+| DELETE | `/boards/posts/<id>/` | **JWT** | Удалить |
 
-| Метод     | Путь                  | Auth    | Действие      |
-| --------- | --------------------- | ------- | ------------- |
-| GET       | `/boards/posts/`      | **JWT** | Список постов |
-| POST      | `/boards/posts/`      | **JWT** | Создать пост  |
-| GET       | `/boards/posts/<id>/` | **JWT** | Один пост     |
-| PUT/PATCH | `/boards/posts/<id>/` | **JWT** | Обновить      |
-| DELETE    | `/boards/posts/<id>/` | **JWT** | Удалить       |
+**Поля:** `id`, `thread`, `content`, `img` (опц.), `video` (опц.: mp4, webm, mov).
 
-
-**Поля:** `id`, `thread`, `content`, `img` (опционально), `video` (опционально; расширения по модели: mp4, webm, mov).
-
----
-
-## Медиа-файлы
-
-В `forum/forum/urls.py` в режиме `**DEBUG`** подключена раздача статики медиа через `static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)`.
-
-В `**settings.py` сейчас не заданы `MEDIA_URL` и `MEDIA_ROOT**` — перед стабильной работой загрузок и URL картинок их нужно прописать; иначе возможны ошибки при старте или некорректные ссылки в полях `img`/`video`.
+**Фронт:** `CommentSection` на странице треда; фильтрация по `thread` на клиенте.
 
 ---
 
-## Типичные коды ответа (DRF)
+## Медиа
 
+В `settings.py`:
 
-| Код     | Когда                                             |
-| ------- | ------------------------------------------------- |
-| 200/201 | Успех                                             |
-| 400     | Ошибка валидации тела                             |
-| 401     | Нет или невалидный JWT там, где нужна авторизация |
-| 403     | Нет прав (например, не админ для создания доски)  |
-| 404     | Нет объекта                                       |
+- `MEDIA_URL = '/media/'`
+- `MEDIA_ROOT = BASE_DIR / 'media'`
 
+В `DEBUG` файлы отдаёт Django (`forum/urls.py`).
 
-Тексты `detail` могут быть на русском или английском в зависимости от настроек языка.
+URL в JSON часто относительные (`/media/...`). Фронт склеивает с базой API: `src/utils/mediaUrl.js`.
 
 ---
 
-## Минимальный сценарий для фронта (dev)
+## Маршруты фронта (React Router)
 
-1. Запустить бэкенд: из каталога `forum/` — `python manage.py runserver`.
-2. Получить токены: `POST /auth/jwt/create/` с `username` и `password`.
-3. Для защищённых запросов добавлять `Authorization: Bearer <access>`.
-4. Список досок/тредов для витрины можно дергать **без** JWT (`GET /boards/`, `GET /boards/threads/`).
-5. Создание треда: `POST /boards/threads/` с JWT и телом (часто **multipart** из‑за `img`).
+| Путь | Страница | API |
+| ---- | -------- | --- |
+| `/` | Список тредов, фильтр досок | `GET /boards/`, `GET /boards/threads/` |
+| `/login` | Вход | `POST /auth/jwt/create/` |
+| `/register` | Регистрация | `POST /auth/users/` |
+| `/activate/:uid/:token` | Заглушка | активация отключена |
+| `/create-board` | Создать доску (админ) | `POST /boards/` |
+| `/create-thread` | Создать тред | `POST /boards/threads/` |
+| `/threads/:id` | Тред + посты | `GET` тред; посты с JWT |
 
 ---
 
-## Синхронизация с кодом
+## Коды ответа (DRF)
 
-Если меняешь `urls.py`, `views.py` или сериализаторы — обнови этот файл. Дублировать сюда каждый вспомогательный URL Djoser необязательно: при сомнениях смотри ответ сервера или документацию установленной версии **Djoser**.
+| Код | Когда |
+| --- | ----- |
+| 200/201/204 | Успех |
+| 400 | Ошибка валидации |
+| 401 | Нет/невалидный JWT |
+| 403 | Нет прав (например, не админ) |
+| 404 | Объект не найден |
+
+---
+
+## Минимальный сценарий (dev)
+
+1. `cd forum` → `python manage.py runserver`
+2. `npm run dev` в корне репозитория
+3. Создать суперпользователя: `python manage.py createsuperuser`
+4. Войти на фронте → при необходимости создать доску (`/create-board`)
+5. Создать тред → открыть → войти → добавить посты
+
+---
+
+## Синхронизация
+
+При изменении `urls.py`, `views.py`, сериализаторов или `src/api/` — обнови этот файл и `docs/PROJECT_STATUS.md`.
