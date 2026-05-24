@@ -1,65 +1,96 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { register } from '../api/auth';
+import { getErrorMessage } from '../api/client';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
+    re_password: '',
   });
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
-    // Получаем текущих пользователей
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-
-    // Проверяем, существует ли пользователь с таким email
-    const existingUser = users.find(user => user.email === formData.email);
-
-    if (existingUser) {
-      alert('Пользователь с таким email уже существует');
+    if (formData.password !== formData.re_password) {
+      setError('Пароли не совпадают');
       return;
     }
 
-    // Добавляем нового пользователя
-    users.push(formData);
-
-    // Сохраняем в localStorage
-    localStorage.setItem('users', JSON.stringify(users));
-
-    alert('Регистрация успешна! Можете войти.');
-    navigate('/login');
+    setSubmitting(true);
+    try {
+      await register(formData);
+      navigate('/login', {
+        state: {
+          message:
+            'Регистрация успешна. Проверьте почту или консоль Django для ссылки активации, затем войдите.',
+        },
+      });
+    } catch (err) {
+      setError(getErrorMessage(err, 'Не удалось зарегистрироваться'));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        name="username"
-        placeholder="Имя пользователя"
-        onChange={handleChange}
-        required
-      />
-      <input
-        name="email"
-        type="email"
-        placeholder="Email"
-        onChange={handleChange}
-        required
-      />
-      <input
-        name="password"
-        type="password"
-        placeholder="Пароль"
-        onChange={handleChange}
-        required
-      />
-      <button type="submit">Зарегистрироваться</button>
+    <form onSubmit={handleSubmit} className="form-card">
+      {error && <p className="error">{error}</p>}
+      <label>
+        Имя пользователя
+        <input
+          name="username"
+          value={formData.username}
+          onChange={handleChange}
+          required
+        />
+      </label>
+      <label>
+        Email
+        <input
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
+      </label>
+      <label>
+        Пароль
+        <input
+          name="password"
+          type="password"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
+      </label>
+      <label>
+        Повтор пароля
+        <input
+          name="re_password"
+          type="password"
+          value={formData.re_password}
+          onChange={handleChange}
+          required
+        />
+      </label>
+      <button type="submit" disabled={submitting}>
+        {submitting ? 'Отправка...' : 'Зарегистрироваться'}
+      </button>
+      <p>
+        Уже есть аккаунт? <Link to="/login">Войти</Link>
+      </p>
     </form>
   );
 };

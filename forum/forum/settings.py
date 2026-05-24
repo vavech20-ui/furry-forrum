@@ -82,6 +82,8 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
@@ -107,6 +109,6 @@ DJOSER = {
     'SEND_ACTIVATION_EMAIL': True,
     'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}', #шаблон ссылки для сброса пароля
     'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}', #шаблон ссылки для смены имени 
-    'ACTIVATION_URL': '/activate/{uid}/{token}', #шаблон ссылки для активации аккаунта
+    'ACTIVATION_URL': 'activate/{uid}/{token}', #шаблон ссылки для активации (фронт: /activate/:uid/:token)
     
 }

@@ -1,9 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import CreateThread from './pages/CreateThread';
+import ThreadDetail from './pages/ThreadDetail';
+import ActivateAccount from './pages/ActivateAccount';
 
 function App() {
   return (
@@ -13,7 +16,16 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/create-thread" element={<CreateThread />} />
+          <Route path="/activate/:uid/:token" element={<ActivateAccount />} />
+          <Route
+            path="/create-thread"
+            element={
+              <ProtectedRoute>
+                <CreateThread />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/threads/:id" element={<ThreadDetail />} />
         </Routes>
       </Router>
     </AuthProvider>

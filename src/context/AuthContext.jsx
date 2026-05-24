@@ -1,17 +1,64 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  fetchCurrentUser,
+  login as apiLogin,
+  logoutLocal,
+} from '../api/auth';
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = (userData) => setUser(userData);
-  const logout = () => setUser(null);
+  const loadUser = async () => {
+    const token = localStorage.getItem('access');
+    if (!token) {
+      setUser(null);
+      return;
+    }
+    try {
+      const me = await fetchCurrentUser();
+      setUser(me);
+    } catch {
+      logoutLocal();
+      setUser(null);
+    }
+  };
+
+  useEffect(() => {
+    loadUser().finally(() => setLoading(false));
+  }, []);
+
+  const login = async (username, password) => {
+    await apiLogin(username, password);
+    const me = await fetchCurrentUser();
+    setUser(me);
+    return me;
+  };
+
+  const logout = () => {
+    logoutLocal();
+    setUser(null);
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isAuthenticated: !!user,
+        login,
+        logout,
+        refreshUser: loadUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

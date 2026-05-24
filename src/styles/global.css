@@ -1,46 +1,230 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: sans-serif;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f9f9f9;
+  background-color: #f4f6f8;
+  color: #1a1a1a;
+  line-height: 1.5;
+}
+
+a {
+  color: #3b5bdb;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 .container {
-  max-width: 800px;
-  margin: auto;
+  max-width: 860px;
+  margin: 0 auto;
   padding: 20px;
 }
 
-.thread-card {
-  border: 1px solid #ddd;
-  padding: 12px;
-  margin-bottom: 16px;
-  border-radius: 6px;
-  background-color: white;
+.site-header {
+  background: #2f3e9e;
+  color: #fff;
+  padding: 0.75rem 1.25rem;
 }
 
-form input, form textarea {
+.site-nav {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.site-nav .logo {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.site-nav .logo:hover {
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.nav-links a {
+  color: #e8ecff;
+}
+
+.nav-links button {
+  background: transparent;
+  border: 1px solid #c5cff9;
+  color: #fff;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.nav-links button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.user-greeting {
+  font-size: 0.9rem;
+  opacity: 0.95;
+}
+
+.thread-card,
+.thread-detail,
+.form-card {
+  border: 1px solid #dde2e8;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.thread-card h3 {
+  margin: 0 0 8px;
+}
+
+.thread-thumb,
+.thread-image,
+.post-media {
+  max-width: 100%;
+  border-radius: 6px;
+  margin: 8px 0;
+}
+
+.thread-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: #5c6773;
+  margin-top: 8px;
+}
+
+.badge {
+  background: #fff3bf;
+  color: #862e00;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.board-filter {
+  margin-bottom: 16px;
+}
+
+.board-filter select {
+  margin-left: 8px;
+  padding: 6px 10px;
+}
+
+.form-card label {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.form-card input,
+.form-card textarea,
+.form-card select,
+.post-form textarea,
+.post-form input[type='file'] {
   display: block;
   width: 100%;
-  margin-bottom: 10px;
-  padding: 8px;
-  box-sizing: border-box;
+  margin-top: 4px;
+  padding: 8px 10px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font: inherit;
 }
+
+.form-card button,
+.post-form button {
+  margin-top: 8px;
+  padding: 10px 16px;
+  background: #3b5bdb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.form-card button:disabled,
+.post-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #c92a2a;
+  background: #fff5f5;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ffc9c9;
+}
+
+.success {
+  color: #2b8a3e;
+  background: #ebfbee;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
 .comment-section {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #f0f0f0;
-  border-radius: 4px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
 }
 
-.comment-section ul {
-  list-style-type: none;
+.post-list {
+  list-style: none;
   padding: 0;
+  margin: 0 0 16px;
 }
 
-.comment-section li {
-  margin-bottom: 8px;
-  padding: 4px;
-  background-color: white;
-  border-radius: 4px;
+.post-item {
+  padding: 12px;
+  margin-bottom: 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.post-item p {
+  margin: 0 0 8px;
+  white-space: pre-wrap;
+}
+
+.post-empty {
+  color: #868e96;
+  font-style: italic;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: #3b5bdb;
+}
+
+.btn-link.danger {
+  color: #c92a2a;
+}
+
+.post-form textarea {
+  margin-bottom: 10px;
 }
