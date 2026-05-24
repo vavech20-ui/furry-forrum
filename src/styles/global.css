@@ -26,3 +26,21 @@ form input, form textarea {
   padding: 8px;
   box-sizing: border-box;
 }
+.comment-section {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+}
+
+.comment-section ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.comment-section li {
+  margin-bottom: 8px;
+  padding: 4px;
+  background-color: white;
+  border-radius: 4px;
+}
